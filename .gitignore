@@ -3,3 +3,4 @@
 Gemfile*
 Guardfile
 aliases.sh
+*.pyc

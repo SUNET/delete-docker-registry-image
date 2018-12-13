@@ -342,6 +342,9 @@ def main():
                         dest="image",
                         required=True,
                         help="Docker image to cleanup")
+    parser.add_argument("-r", "--registry-data-dir",
+                        dest="registry_data_dir",
+                        help="Full path for the registry data directory")
     parser.add_argument("-v", "--verbose",
                         dest="verbose",
                         action="store_true",
@@ -390,6 +393,8 @@ def main():
 
     if 'REGISTRY_DATA_DIR' in os.environ:
         registry_data_dir = os.environ['REGISTRY_DATA_DIR']
+    elif args.registry_data_dir:
+        registry_data_dir = args.registry_data_dir
     else:
         registry_data_dir = "/opt/registry_data/docker/registry/v2"
 

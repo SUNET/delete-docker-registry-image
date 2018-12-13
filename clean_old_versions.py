@@ -40,73 +40,9 @@ def get_paginate_query(response):
     else:
         return None
 
-def main():
-    """cli entrypoint"""
-    parser = argparse.ArgumentParser(description="Cleanup docker registry")
-    parser.add_argument("-e", "--exclude",
-                        dest="exclude",
-                        help="Regexp to exclude tags")
-    parser.add_argument("-E", "--include",
-                        dest="include",
-                        help="Regexp to include tags")
-    parser.add_argument("-i", "--image",
-                        dest="image",
-                        required=True,
-                        help="Docker image to cleanup")
-    parser.add_argument("-v", "--verbose",
-                        dest="verbose",
-                        action="store_true",
-                        help="verbose")
-    parser.add_argument("-u", "--registry-url",
-                        dest="registry_url",
-                        default="http://localhost",
-                        help="Registry URL")
-    parser.add_argument("-s", "--script-path",
-                        dest="script_path",
-                        default="/usr/local/bin/delete_docker_registry_image",
-                        help="delete_docker_registry_image full script path")
-    parser.add_argument("-l", "--last",
-                        dest="last",
-                        type=int,
-                        help="Keep last N tags")
-    parser.add_argument("-b", "--before-date",
-                        dest="before",
-                        type=valid_date,
-                        help="Only delete tags created before given date. " +
-                             "The date must be given in the format " +
-                             "'YYYY-MM-DDTHH24:mm:ss' (e.q. '" +
-                             datetime.now().strftime(DATE_FORMAT) + "').")
-    parser.add_argument("-a", "--after-date",
-                        dest="after",
-                        type=valid_date,
-                        help="Only delete tags created after given date. " +
-                             "The date must be given in the format " +
-                             "'YYYY-MM-DDTHH24:mm:ss' (e.q. '" +
-                             datetime.now().strftime(DATE_FORMAT) + "').")
-    parser.add_argument("-o", "--order",
-                        dest="order",
-                        choices=['name', 'date'],
-                        default='name',
-                        help="Selects the order in which tags are sorted when the option '--last' is used")
-    parser.add_argument("-U", "--user",
-                        dest="user",
-                        help="User for auth")
-    parser.add_argument("-P", "--password",
-                        dest="password",
-                        help="Password for auth")
-    parser.add_argument("--no_check_certificate",
-                        action='store_false')
-    parser.add_argument("--dry-run",
-                        dest='dry_run',
-                        action='store_true',
-                        help="Dry run - show which tags would have been deleted but do not delete them")
-    args = parser.parse_args()
-
+def get_catalog(args):
     # Get catalog
-    if args.user and args.password:
-        auth = (args.user, args.password)
-    else:
-        auth = None
+    auth = get_auth(args.user, args.password)
     response = requests.get(args.registry_url + "/v2/_catalog",
                             auth=auth, verify=args.no_check_certificate)
 
@@ -119,7 +55,19 @@ def main():
         repositories.extend(response.json()['repositories'])
         nextQuery = get_paginate_query(response)
 
+    return repositories
+
+def get_auth(user, password):
+    if user and password:
+        auth = (user, password)
+    else:
+        auth = None
+
+    return auth
+
+def delete_matching_tags(repositories, args):
     # For each repository check it matches with args.image
+    auth = get_auth(args.user, args.password)
     for repository in repositories:
         if re.search(args.image, repository):
             # Get tags
@@ -168,9 +116,14 @@ def main():
                     tags_to_delete = matching_tags
 
                 for tag in tags_to_delete:
-                    command2run = "{0} --image {1}:{2}". \
-                        format(args.script_path, repository, tag)
-                    if args.dry_run :
+                    if args.registry_data_dir:
+                        command2run = "{0} --image {1}:{2} --registry-data-dir {3}". \
+                            format(args.script_path, repository, tag, args.registry_data_dir)
+                    else:
+                        command2run = "{0} --image {1}:{2}". \
+                            format(args.script_path, repository, tag)
+
+                    if args.dry_run:
                         print("Simulate deletion of {0}:{1}".format(repository, tag))
                         command2run += " --dry-run"
                     print("Running: {0}".format(command2run))
@@ -180,6 +133,78 @@ def main():
             else:
                 print("No tags availables for " + repository)
 
+
+def get_arguments(require_arguments=True):
+
+    parser = argparse.ArgumentParser(description="Cleanup docker registry")
+    parser.add_argument("-e", "--exclude",
+                        dest="exclude",
+                        help="Regexp to exclude tags")
+    parser.add_argument("-E", "--include",
+                        dest="include",
+                        help="Regexp to include tags")
+    parser.add_argument("-i", "--image",
+                        dest="image",
+                        required=require_arguments,
+                        help="Docker image to cleanup")
+    parser.add_argument("-v", "--verbose",
+                        dest="verbose",
+                        action="store_true",
+                        help="verbose")
+    parser.add_argument("-u", "--registry-url",
+                        dest="registry_url",
+                        default="http://localhost",
+                        help="Registry URL")
+    parser.add_argument("-s", "--script-path",
+                        dest="script_path",
+                        default="/usr/local/bin/delete_docker_registry_image",
+                        help="delete_docker_registry_image full script path")
+    parser.add_argument("-r", "--registry-data-dir",
+                        dest="registry_data_dir",
+                        default="/opt/registry_data/docker/registry/v2",
+                        help="Full path for the registry data directory")
+    parser.add_argument("-l", "--last",
+                        dest="last",
+                        type=int,
+                        help="Keep last N tags")
+    parser.add_argument("-b", "--before-date",
+                        dest="before",
+                        type=valid_date,
+                        help="Only delete tags created before given date. " +
+                             "The date must be given in the format " +
+                             "'YYYY-MM-DDTHH24:mm:ss' (e.q. '" +
+                             datetime.now().strftime(DATE_FORMAT) + "').")
+    parser.add_argument("-a", "--after-date",
+                        dest="after",
+                        type=valid_date,
+                        help="Only delete tags created after given date. " +
+                             "The date must be given in the format " +
+                             "'YYYY-MM-DDTHH24:mm:ss' (e.q. '" +
+                             datetime.now().strftime(DATE_FORMAT) + "').")
+    parser.add_argument("-o", "--order",
+                        dest="order",
+                        choices=['name', 'date'],
+                        default='name',
+                        help="Selects the order in which tags are sorted when the option '--last' is used")
+    parser.add_argument("-U", "--user",
+                        dest="user",
+                        help="User for auth")
+    parser.add_argument("-P", "--password",
+                        dest="password",
+                        help="Password for auth")
+    parser.add_argument("--no_check_certificate",
+                        action='store_false')
+    parser.add_argument("--dry-run",
+                        dest='dry_run',
+                        action='store_true',
+                        help="Dry run - show which tags would have been deleted but do not delete them")
+
+    return parser.parse_args()
+
+def main():
+    args = get_arguments()
+    repositories = get_catalog(args)
+    delete_matching_tags(repositories, args)
 
 if __name__ == '__main__':
     main()
