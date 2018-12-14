@@ -4,107 +4,19 @@ registry_url:
 registry_data_dir: /var/lib/registry/docker/registry/v2
 registry_container_name: registry
 registry_container_port: 5000
-delete_docker_registry_image_path: /root/john/delete-docker-registry-image/delete_docker_registry_image.py
+delete_docker_registry_image_path: /usr/local/bin/clean-registry/delete_docker_registry_image.py
 
 exact_images:
     ac-frontend:
         regex_of_tags_to_save: 'latest$'
         number_of_latest_builds_to_save: 5
 
-    always-https:
-        regex_of_tags_to_save: 'latest$'
-        number_of_latest_builds_to_save: 5
-
-    beanstalkd:
-        regex_of_tags_to_save: 'latest$'
-        number_of_latest_builds_to_save: 5
-
-    datasets:
-        regex_of_tags_to_save: 'latest$'
-        number_of_latest_builds_to_save: 5
-
-    demw-node-local:
-        regex_of_tags_to_save: '[0-9]+\.[0-9]+\.[0-9]$|stable$|previous-stable$|staging$|previous-staging$|latest$'
-        number_of_latest_builds_to_save: 5
-
-    dnslb:
-        regex_of_tags_to_save: 'stable$|previous-stable$|staging$|previous-staging$|latest$'
-        number_of_latest_builds_to_save: 5
-
-    ds-legacy:
-        regex_of_tags_to_save: 'stable$|previous-stable$|staging$|previous-staging$|latest$'
-        number_of_latest_builds_to_save: 5
-
-    eidas-connector:
-        regex_of_tags_to_save: '[0-9]+\.[0-9]+\.[0-9]$|stable$|previous-stable$|staging$|previous-staging$|latest$'
-        number_of_latest_builds_to_save: 5
-
-    eidas-demw:
-        regex_of_tags_to_save: '[0-9]+\.[0-9]+\.[0-9]$|stable$|previous-stable$|staging$|previous-staging$|latest$'
-        number_of_latest_builds_to_save: 5
-
-    eidas-proxy:
-        regex_of_tags_to_save: '[0-9]+\.[0-9]+\.[0-9]$|stable$|previous-stable$|staging$|previous-staging$|latest$'
-        number_of_latest_builds_to_save: 5
-
-    eidas-proxy-service:
-        regex_of_tags_to_save: '[0-9]+\.[0-9]+\.[0-9]$|stable$|previous-stable$|staging$|previous-staging$|latest$'
-        number_of_latest_builds_to_save: 5
-
-    eidas-ps-testsp:
-        regex_of_tags_to_save: '[0-9]+\.[0-9]+\.[0-9]$|stable$|previous-stable$|staging$|previous-staging$|latest$'
-        number_of_latest_builds_to_save: 5
-
-    geodns:
-        regex_of_tags_to_save: '[0-9]+\.[0-9]+\.[0-9]$|stable$|previous-stable$|staging$|previous-staging$|latest$'
-        number_of_latest_builds_to_save: 5
-
-    gitweb:
-        regex_of_tags_to_save: '[0-9]+\.[0-9]+\.[0-9]$|stable$|previous-stable$|staging$|previous-staging$|latest$'
-        number_of_latest_builds_to_save: 5
-
-    goofys:
-        regex_of_tags_to_save: '[0-9]+\.[0-9]+\.[0-9]$|stable$|previous-stable$|staging$|previous-staging$|latest$'
-        number_of_latest_builds_to_save: 5
-
     luna-client:
         regex_of_tags_to_save: 'luna[0-9]+-jre[0-9]+$|[0-9]+\.[0-9]+\.[0-9]$|stable$|previous-stable$|staging$|previous-staging$|latest$'
         number_of_latest_builds_to_save: 5
 
-    luna-xmlsec:
-        regex_of_tags_to_save: 'luna[0-9]+-jre[0-9]+$|[0-9]+\.[0-9]+\.[0-9]$|stable$|previous-stable$|staging$|previous-staging$|latest$'
-        number_of_latest_builds_to_save: 5
-
-    openjdk-jre-luna:
-        regex_of_tags_to_save: 'luna[0-9]+-jre[0-9]+$|[0-9]+\.[0-9]+\.[0-9]$|stable$|previous-stable$|staging$|previous-staging$|latest$'
-        number_of_latest_builds_to_save: 5
-
-    metadata-validator:
-        regex_of_tags_to_save: '[0-9]+\.[0-9]+\.[0-9]$|stable$|previous-stable$|staging$|previous-staging$|latest$'
-        number_of_latest_builds_to_save: 5
-
-    prid-service:
-        regex_of_tags_to_save: '[0-9]+\.[0-9]+\.[0-9]$|stable$|previous-stable$|staging$|previous-staging$|latest$'
-        number_of_latest_builds_to_save: 5
-
-    pyff:
-        regex_of_tags_to_save: '[0-9]+\.[0-9]+\.[0-9]$|stable$|previous-stable$|staging$|previous-staging$|latest$'
-        number_of_latest_builds_to_save: 5
-
-    registry-auth:
-        regex_of_tags_to_save: '[0-9]+\.[0-9]+\.[0-9]$|stable$|previous-stable$|staging$|previous-staging$|latest$'
-        number_of_latest_builds_to_save: 5
-
-    satosa-saas-proxy:
-        regex_of_tags_to_save: '[0-9]+\.[0-9]+\.[0-9]$|stable$|previous-stable$|staging$|previous-staging$|latest$'
-        number_of_latest_builds_to_save: 5
-
-    sunet/docker-registry-auth:
-        regex_of_tags_to_save: 'stable$|latest$'
-        number_of_latest_builds_to_save: 5
-
 group_images:
-    '^eduid/.*':
+    '^exampleproject/.*':
         regex_of_tags_to_save: 'stable$|previous-stable$|staging$|previous-staging$|latest$'
         number_of_latest_builds_to_save: 1
 
