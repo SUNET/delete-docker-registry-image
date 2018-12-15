@@ -51,9 +51,10 @@ def clean(config):
         for image_in_registry in registry_catalog:
             if image_to_clean == image_in_registry:
                 image_config = config['exact_images'][image_to_clean]
-                args = parse_args(config, image_to_clean, 
-                        image_config['regex_of_tags_to_save'], 
-                        image_config['number_of_latest_builds_to_save'])
+                args = parse_args(config=config, image=image_to_clean,
+                        exclude = image_config['regex_of_tags_to_save'],
+                        include = image_config['regex_of_tags_to_delete'],
+                        last = image_config['number_of_latest_builds_to_save'])
                 print("Starting cleanup of image: {}".format(image_to_clean))
                 clean_old_versions.delete_matching_tags(registry_catalog, args)
 
@@ -63,9 +64,10 @@ def clean(config):
         for image_in_registry in registry_catalog:
             if re.match(group, image_in_registry):
                 group_config = config['group_images'][group]
-                args = parse_args(config, image_in_registry, 
-                        group_config['regex_of_tags_to_save'], 
-                        group_config['number_of_latest_builds_to_save'])
+                args = parse_args(config=config, image=image_in_registry,
+                        exclude=group_config['regex_of_tags_to_save'],
+                        include=group_config['regex_of_tags_to_delete'],
+                        last=group_config['number_of_latest_builds_to_save'])
                 print("Starting cleanup of image: {}".format(image_in_registry))
                 clean_old_versions.delete_matching_tags(registry_catalog, args)
 
@@ -75,7 +77,7 @@ def parse_config(config_file):
 
     return config
 
-def parse_args(config, image=None, exclude=None, last=None):
+def parse_args(config, image=None, exclude=None, include=None, last=None):
     args = clean_old_versions.get_arguments(require_arguments=False)
 
     if config['registry_url']:
@@ -88,6 +90,7 @@ def parse_args(config, image=None, exclude=None, last=None):
     args.script_path = config['delete_docker_registry_image_path']
     args.image = image
     args.exclude = exclude
+    args.include = include
     args.last = last
 
     return args
