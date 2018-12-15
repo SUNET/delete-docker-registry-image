@@ -69,7 +69,7 @@ def delete_matching_tags(repositories, args):
     # For each repository check it matches with args.image
     auth = get_auth(args.user, args.password)
     for repository in repositories:
-        if re.search(args.image, repository):
+        if args.image == repository:
             # Get tags
             response = requests.get(args.registry_url + "/v2/" + repository + "/tags/list",
                                     auth=auth, verify=args.no_check_certificate)
